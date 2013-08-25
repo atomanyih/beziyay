@@ -76,8 +76,8 @@ function drawPoint(v,size) {
 }
 
 function drawControlPoints() {
-  for (var i = 0; i < points[0].length; i++) {
-    point = points[0][i];
+  for (var i = 0; i < controlPoints.length; i++) {
+    point = controlPoints[i];
     ctx.fillStyle = 'rgb(255,0,0)';
 
     drawPoint(point,3);
@@ -130,6 +130,13 @@ function drawBackground() {
   ctx.fillRect(0,0,WIDTH,HEIGHT);
 }
 
+function randomPointOnCanvas() {
+  var x = Math.floor(Math.random() * WIDTH),
+      y = Math.floor(Math.random() * HEIGHT);
+
+  return [x,y];
+}
+
 function interpolate(v1,v2,mu) {
   var v3 = [];
   v3[0] = v1[0]*(1-mu) + v2[0] * mu;
@@ -148,14 +155,7 @@ function addControlPoint() {
 function removeControlPoint(i) {
   controlPoints.splice(i,1);
   $('.point_list li').eq(i).remove();
-  update();
-}
-
-function randomPointOnCanvas() {
-  var x = Math.floor(Math.random() * WIDTH),
-      y = Math.floor(Math.random() * HEIGHT);
-
-  return [x,y];
+  draw();
 }
 
 function setControlPoint(i,v) {
@@ -204,6 +204,7 @@ function draw() {
   drawBackground();
   //drawBezier();
   //drawLines();
+  drawControlPoints();
   particles.set(controlPoints);
   particles.draw();
 }

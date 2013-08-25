@@ -1,0 +1,85 @@
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 9pt;
+  font-weight: lighter;
+
+  background-color: black;
+  color: white;
+}
+
+h1 {
+  font-size: 12pt;
+  font-weight: bold;
+}
+
+a {
+  text-decoration: none;
+  color: #BBB;
+}
+
+a:hover {
+  color: #0DA1FF;
+}
+
+#canvas {
+  width: 100%;
+  height: 100%;
+}
+
+span {
+  float: left;
+}
+
+.canvas_container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.controls {
+  position: absolute;
+  top: 1em;
+  left: 1em;
+}
+
+.controls .current_point {
+  width: 100%;
+  background-color: yellow;
+}
+
+.controls .current_point .control_point{
+  color: black;
+}
+
+.controls .current_point .control_point:hover{
+  color: #0DA1FF;
+}
+
+.controls .point_list {
+  padding-left: 2em;
+}
+
+.controls .remove_point {
+  float: right;
+  padding-right: .2em;
+}
+
+.options {
+  margin-left: 1em;
+}
+
+.options input[type="range"]{
+  -webkit-appearance:none !important;
+  -moz-appearance:none !important;
+  width:100%;
+  height: 0.25em;
+  background-color: white;
+}
+
+.options input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none !important;
+  -moz-appearance:none !important;
+  width: 0.5em;
+  height: 0.5em;
+  background-color: white;
+}

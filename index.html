@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="../reset.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="../jquery-2.0.2.js"></script>
+  <script src="../Calligrapher/math.js"></script>
+  <script src="../Calligrapher/vector.js"></script>
+  <script src="../Calligrapher/bezier.js"></script>
+</head>
+
+<body>
+  <div class="canvas_container">
+    <canvas id="canvas"></canvas>
+    <script src="script.js"></script>
+  </div>
+  <div class="controls">
+    <span class="control_points">
+      <h1>Control Points <a class="add_control_point" href="#">+</a></h1>
+      <ol class="point_list"></ol>
+    </span>
+    <span class="options">
+      <h1>Animation Speed</h1>
+      <input type="range" id="animation_speed" min="30" max="240" value="60"></input>
+    </span>
+  </div>
+</body>
+</html>

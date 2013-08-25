@@ -2,7 +2,6 @@ var canvas = document.getElementById('canvas'),
     WIDTH = canvas.width,
     HEIGHT = canvas.height,
     ctx = canvas.getContext('2d'),
-    t = 0,
     ANIMATION_STEPS = 100;
     FRAMERATE = 60,
     currentPoint = null,
@@ -15,8 +14,8 @@ var canvas = document.getElementById('canvas'),
 var particles = Particles([]);
 
 function Particles(points) {
-  var controlPoints = points;
-      //t = 0;
+  var controlPoints = points,
+      t = 0;
 
   function drawAt(t) {
     points = [controlPoints];
@@ -197,17 +196,14 @@ function bindControlPointLinks() {
 }
 
 function advance() {
-  t++;
-  if(t > ANIMATION_STEPS) {
-    t = 0;
-  }
+  particles.advance();
 }
 
 function draw() {
   drawBackground();
   //drawBezier();
   //drawLines();
-  particles.draw(t);
+  particles.draw();
 }
 
 function resizeCanvas() {
@@ -249,7 +245,7 @@ $( function() {
 
   document.onkeypress = function(event) {
     var keyCode = event.keyCode;
-    if(keyCode >= 49 && keyCode < (49 + points[0].length)) {
+    if(keyCode >= 49 && keyCode < (49 + particles.numPoints())) {
       setCurrentPoint(keyCode - 49);
     }
   };

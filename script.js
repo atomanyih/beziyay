@@ -2,7 +2,6 @@ var canvas = document.getElementById('canvas'),
     WIDTH = canvas.width,
     HEIGHT = canvas.height,
     ctx = canvas.getContext('2d'),
-    controlPoints = [],
     points = [[]],
     t = 0,
     ANIMATION_STEPS = 100;
@@ -13,15 +12,51 @@ var canvas = document.getElementById('canvas'),
     RUNNING = true,
     dragging = false;
 
-function setPoints(t) {
-  t = t%ANIMATION_STEPS;
-  for (var i = 1; i < points[0].length; i++) {
-    points[i] = [];
-    for (var j = 0; j < points[i-1].length - 1; j++) {
-      points[i][j] = interpolate(points[i-1][j],points[i-1][j+1],t/ANIMATION_STEPS);
+function Drawer(points) {
+  var controlPoints = points;
+      //t = 0;
+
+  function drawAt(t) {
+    points = [controlPoints];
+    t = t%ANIMATION_STEPS;
+    for (var i = 1; i < points[0].length; i++) {
+      points[i] = [];
+      for (var j = 0; j < points[i-1].length - 1; j++) {
+        points[i][j] = interpolate(points[i-1][j],points[i-1][j+1],t/ANIMATION_STEPS);
+      }
+    }
+
+    ctx.fillStyle = 'rgb(255,0,0)';
+
+    for (var i = 1; i < points.length; i++) {
+      array = points[i];
+
+      for (var j = 0; j < array.length; j++) {
+
+        drawPoint(array[j],2);
+      }
+    }
+  }
+
+  return {
+    advance: function() {
+      t++;
+      if(t > ANIMATION_STEPS) {
+        t = 0;
+      }
+    },
+    set: function (i,p) {
+      controlPoints[i] = p;
+    },
+    add: function (p) {
+      controlPoints.push(p);
+    },
+    draw: function () {
+      drawAt(t);
     }
   }
 }
+
 
 function drawPoint(v,size) {
   var x = v[0],
@@ -30,42 +65,6 @@ function drawPoint(v,size) {
   ctx.beginPath();
   ctx.arc(x, y, size, 0, 2 * Math.PI, false);
   ctx.fill();
-}
-
-// function drawPoints(t) {
-//   t = t%ANIMATION_STEPS;
-//   var points = [controlPoints];
-//   for (var i = 1; i < points[0].length; i++) {
-//     points[i] = [];
-//     for (var j = 0; j < points[i-1].length - 1; j++) {
-//       points[i][j] = interpolate(points[i-1][j],points[i-1][j+1],t/ANIMATION_STEPS);
-//     }
-//   }
-
-//   ctx.fillStyle = 'rgb(255,0,0)';
-
-//   for (var i = 1; i < points.length; i++) {
-//     array = points[i];
-
-//     for (var j = 0; j < array.length; j++) {
-
-//       drawPoint(array[j],2);
-//     }
-//   }
-// }
-
-function drawPoints() {
-  drawControlPoints();
-  ctx.fillStyle = 'rgb(255,0,0)';
-
-  for (var i = 1; i < points.length; i++) {
-    array = points[i];
-
-    for (var j = 0; j < array.length; j++) {
-
-      drawPoint(array[j],2);
-    }
-  }
 }
 
 function drawControlPoints() {
@@ -197,18 +196,12 @@ function advance() {
   }
 }
 
-function setAndDraw(numPoints) {
-  for (var i = 0; i < numPoints; i++) {
-    setPoints(t + i*ANIMATION_STEPS/numPoints);
-    drawPoints(t + i*ANIMATION_STEPS/numPoints);
-  }
-}
-
 function draw() {
   drawBackground();
   //drawBezier();
   //drawLines();
-  setAndDraw(4);
+  var drawer = Drawer(points[0])
+  drawer.draw(t);
 }
 
 function resizeCanvas() {

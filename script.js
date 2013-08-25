@@ -2,7 +2,6 @@ var canvas = document.getElementById('canvas'),
     WIDTH = canvas.width,
     HEIGHT = canvas.height,
     ctx = canvas.getContext('2d'),
-    points = [[]],
     t = 0,
     ANIMATION_STEPS = 100;
     FRAMERATE = 60,
@@ -12,7 +11,10 @@ var canvas = document.getElementById('canvas'),
     RUNNING = true,
     dragging = false;
 
-function Drawer(points) {
+
+var particles = Particles([]);
+
+function Particles(points) {
   var controlPoints = points;
       //t = 0;
 
@@ -45,11 +47,17 @@ function Drawer(points) {
         t = 0;
       }
     },
+    numPoints: function() {
+      return controlPoints.length;
+    },
     set: function (i,p) {
       controlPoints[i] = p;
     },
     add: function (p) {
       controlPoints.push(p);
+    },
+    remove: function (i) {
+      controlPoints.splice(i,1);
     },
     draw: function () {
       drawAt(t);
@@ -131,16 +139,15 @@ function interpolate(v1,v2,mu) {
 
 function addControlPoint() {
   point = randomPointOnCanvas();
-  points[0].push(point);
+  particles.add(point);
   $('.point_list').append(controlPointHTML(point));
   bindControlPointLinks();
-  setCurrentPoint(points[0].length - 1);
+  setCurrentPoint(particles.numPoints() - 1);
 }
 
 function removeControlPoint(i) {
-  points[0].splice(i,1);
+  particles.remove(i)
   $('.point_list li').eq(i).remove();
-  points.splice(points.length-1,1)
   update();
 }
 
@@ -152,7 +159,7 @@ function randomPointOnCanvas() {
 }
 
 function setControlPoint(i,v) {
-  points[0][i] = v;
+  particles.set(i, v);
 
   $('.point_list :nth-child('+(i+1)+') .control_point').text('('+v+')');
 }
@@ -200,8 +207,7 @@ function draw() {
   drawBackground();
   //drawBezier();
   //drawLines();
-  var drawer = Drawer(points[0])
-  drawer.draw(t);
+  particles.draw(t);
 }
 
 function resizeCanvas() {

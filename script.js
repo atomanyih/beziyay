@@ -12,9 +12,9 @@ var canvas = document.getElementById('canvas'),
     dragging = false;
 
 
-var particles = Particles();
+var drawer = Drawer();
 
-function Particles() {
+function Drawer() {
   var controlPoints = [],
       t = 0;
 
@@ -28,6 +28,37 @@ function Particles() {
       }
     }
 
+    for (var i = 0; i < points.length - 1; i++) {
+      array = points[i];
+
+      for (var j = 0; j < array.length - 1; j++) {
+        var x0 = array[j][0],
+            y0 = array[j][1],
+            x1 = array[j+1][0],
+            y1 = array[j+1][1];
+
+        ctx.beginPath();
+        ctx.moveTo(x0,y0);
+        ctx.lineTo(x1,y1);
+        ctx.strokeStyle = 'rgba(255,255,255,.5)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+      }
+    }
+
+    for (var i = 0; i < points.length; i++) {
+      var cps = points[i],
+          bezier = new Bezier(cps);
+
+      ctx.strokeStyle = 'white';
+      if (i === 0)
+        ctx.lineWidth = 3;
+      else 
+        ctx.lineWidth = 2;
+      bezier.drawPlain(ctx);
+    }
+
     ctx.fillStyle = 'rgb(255,0,0)';
 
     for (var i = 1; i < points.length; i++) {
@@ -38,6 +69,8 @@ function Particles() {
         drawPoint(array[j],2);
       }
     }
+
+
   }
 
   return {
@@ -53,15 +86,9 @@ function Particles() {
     set: function (points) {
       controlPoints = points;
     },
-    add: function (p) {
-      controlPoints.push(p);
-    },
-    remove: function (i) {
-      controlPoints.splice(i,1);
-    },
     draw: function () {
       drawAt(t);
-    }
+    },
   }
 }
 
@@ -86,41 +113,6 @@ function drawControlPoints() {
       ctx.lineWidth = 2;
       ctx.stroke();
     }
-  }
-}
-
-function drawLines() {
-  for (var i = 0; i < points.length - 1; i++) {
-    array = points[i];
-
-    for (var j = 0; j < array.length - 1; j++) {
-      var x0 = array[j][0],
-          y0 = array[j][1],
-          x1 = array[j+1][0],
-          y1 = array[j+1][1];
-
-      ctx.beginPath();
-      ctx.moveTo(x0,y0);
-      ctx.lineTo(x1,y1);
-      ctx.strokeStyle = 'rgba(255,255,255,.5)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-    }
-  }
-}
-
-function drawBezier() {
-  for (var i = 0; i < points.length; i++) {
-    var controlPoints = points[i],
-        bezier = new Bezier(controlPoints);
-
-    ctx.strokeStyle = 'white';
-    if (i === 0)
-      ctx.lineWidth = 3;
-    else 
-      ctx.lineWidth = 2;
-    bezier.drawPlain(ctx);
   }
 }
 
@@ -197,16 +189,15 @@ function bindControlPointLinks() {
 }
 
 function advance() {
-  particles.advance();
+  drawer.advance();
 }
 
 function draw() {
+  drawer.set(controlPoints);
   drawBackground();
   //drawBezier();
-  //drawLines();
   drawControlPoints();
-  particles.set(controlPoints);
-  particles.draw();
+  drawer.draw();
 }
 
 function resizeCanvas() {
@@ -248,7 +239,7 @@ $( function() {
 
   document.onkeypress = function(event) {
     var keyCode = event.keyCode;
-    if(keyCode >= 49 && keyCode < (49 + particles.numPoints())) {
+    if(keyCode >= 49 && keyCode < (49 + drawer.numPoints())) {
       setCurrentPoint(keyCode - 49);
     }
   };

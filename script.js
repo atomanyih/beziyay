@@ -17,6 +17,10 @@ function Drawer() {
   var controlPoints = [],
       t = 0;
 
+  var DRAW_POINTS = true,
+      DRAW_LINES = true,
+      DRAW_BEZIERS = true;
+
   function drawAt(t) {
     points = [controlPoints];
     t = t%ANIMATION_STEPS;
@@ -28,47 +32,53 @@ function Drawer() {
     }
 
     // Lines
-    for (var i = 0; i < points.length - 1; i++) {
-      array = points[i];
+    if(DRAW_LINES) {
+      for (var i = 0; i < points.length - 1; i++) {
+        array = points[i];
 
-      for (var j = 0; j < array.length - 1; j++) {
-        var x0 = array[j][0],
-            y0 = array[j][1],
-            x1 = array[j+1][0],
-            y1 = array[j+1][1];
+        for (var j = 0; j < array.length - 1; j++) {
+          var x0 = array[j][0],
+              y0 = array[j][1],
+              x1 = array[j+1][0],
+              y1 = array[j+1][1];
 
-        ctx.beginPath();
-        ctx.moveTo(x0,y0);
-        ctx.lineTo(x1,y1);
-        ctx.strokeStyle = 'rgba(255,255,255,.5)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(x0,y0);
+          ctx.lineTo(x1,y1);
+          ctx.strokeStyle = 'rgba(255,255,255,.5)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
 
+        }
       }
     }
 
     // Beziers
-    for (var i = 0; i < points.length; i++) {
-      var cps = points[i],
-          bezier = new Bezier(cps);
+    if(DRAW_BEZIERS) {
+      for (var i = 0; i < points.length; i++) {
+        var cps = points[i],
+            bezier = new Bezier(cps);
 
-      ctx.strokeStyle = 'white';
-      if (i === 0)
-        ctx.lineWidth = 3;
-      else 
-        ctx.lineWidth = 2;
-      bezier.drawPlain(ctx);
+        ctx.strokeStyle = rgb(255,255,255);
+        if (i === 0)
+          ctx.lineWidth = 3;
+        else 
+          ctx.lineWidth = 2;
+        bezier.drawPlain(ctx);
+      }
     }
 
     // Points
-    ctx.fillStyle = 'rgb(255,0,0)';
+    if(DRAW_POINTS) {
+      ctx.fillStyle = rgb(255,0,0);
 
-    for (var i = 1; i < points.length; i++) {
-      array = points[i];
+      for (var i = 1; i < points.length; i++) {
+        array = points[i];
 
-      for (var j = 0; j < array.length; j++) {
+        for (var j = 0; j < array.length; j++) {
 
-        drawPoint(array[j],2);
+          drawPoint(array[j],2);
+        }
       }
     }
 
@@ -85,17 +95,29 @@ function Drawer() {
     numPoints: function() {
       return controlPoints.length;
     },
-    set: function (points) {
+    set: function(points) {
       controlPoints = points;
     },
-    draw: function (n) {
+    draw: function(n) {
       for (var i = 0; i < n; i++) {
         drawAt(t + ANIMATION_STEPS/n * i);
       }
     },
+    togglePoints: function() {
+      DRAW_POINTS = !DRAW_POINTS;
+    },
+    toggleLines: function() {
+      DRAW_LINES = !DRAW_LINES;
+    },
+    toggleBeziers: function() {
+      DRAW_BEZIERS = !DRAW_BEZIERS;
+    }
   }
 }
 
+function rgb(r,g,b) {
+  return 'rgb(' + r +','+g+','+b+')';
+}
 
 function drawPoint(v,size) {
   var x = v[0],
@@ -109,7 +131,7 @@ function drawPoint(v,size) {
 function drawControlPoints() {
   for (var i = 0; i < controlPoints.length; i++) {
     point = controlPoints[i];
-    ctx.fillStyle = 'rgb(255,0,0)';
+    ctx.fillStyle = rgb(255,0,0);
 
     drawPoint(point,3);
     if (i == currentPoint) {

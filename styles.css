@@ -18,7 +18,7 @@ a {
 }
 
 a:hover {
-  color: #0DA1FF;
+  color: #FFF;
 }
 
 #canvas {
@@ -52,7 +52,7 @@ span {
 }
 
 .controls .current_point .control_point:hover{
-  color: #0DA1FF;
+  color: #000;
 }
 
 .controls .point_list {

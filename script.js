@@ -8,7 +8,6 @@ var canvas = document.getElementById('canvas'),
     currentPoint = null,
     hoveredPoint = null,
     RESOLUTION = 10,
-    RUNNING = true,
     dragging = false;
 
 
@@ -28,6 +27,7 @@ function Drawer() {
       }
     }
 
+    // Lines
     for (var i = 0; i < points.length - 1; i++) {
       array = points[i];
 
@@ -47,6 +47,7 @@ function Drawer() {
       }
     }
 
+    // Beziers
     for (var i = 0; i < points.length; i++) {
       var cps = points[i],
           bezier = new Bezier(cps);
@@ -59,6 +60,7 @@ function Drawer() {
       bezier.drawPlain(ctx);
     }
 
+    // Points
     ctx.fillStyle = 'rgb(255,0,0)';
 
     for (var i = 1; i < points.length; i++) {
@@ -86,8 +88,10 @@ function Drawer() {
     set: function (points) {
       controlPoints = points;
     },
-    draw: function () {
-      drawAt(t);
+    draw: function (n) {
+      for (var i = 0; i < n; i++) {
+        drawAt(t + ANIMATION_STEPS/n * i);
+      }
     },
   }
 }
@@ -166,6 +170,10 @@ function setHoveredPoint(i) {
   hoveredPoint = i;
 }
 
+function setAnimationSteps(steps) {
+  ANIMATION_STEPS = steps;
+}
+
 function controlPointHTML(point) {
   return '<li><a class="control_point" href="#">('+point+')</a> <a class="remove_point" href="#">-</a></li>'
 }
@@ -195,9 +203,8 @@ function advance() {
 function draw() {
   drawer.set(controlPoints);
   drawBackground();
-  //drawBezier();
+  drawer.draw(4);
   drawControlPoints();
-  drawer.draw();
 }
 
 function resizeCanvas() {
@@ -256,9 +263,7 @@ $( function() {
   });
 
   $('#animation_speed').change(function(event) {
-    var newVal = $(this).val();
-    t = Math.floor(t/ANIMATION_STEPS * newVal);
-    ANIMATION_STEPS = newVal;
+    setAnimationSteps($(this).val());
   });
 
   addControlPoint();

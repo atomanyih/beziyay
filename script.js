@@ -2,13 +2,15 @@ var canvas = document.getElementById('canvas'),
     WIDTH = canvas.width,
     HEIGHT = canvas.height,
     ctx = canvas.getContext('2d'),
-    controlPoints = [];
-    ANIMATION_STEPS = 100;
-    FRAMERATE = 60,
+    controlPoints = [],
     currentPoint = null,
     hoveredPoint = null,
+    dragging = false,
+    ANIMATION_STEPS = 100,
+    FRAMERATE = 60,
+    FREQUENCY = 1,
     RESOLUTION = 10,
-    dragging = false;
+    TRAILS = 20;
 
 
 var drawer = Drawer();
@@ -45,7 +47,7 @@ function Drawer() {
           ctx.beginPath();
           ctx.moveTo(x0,y0);
           ctx.lineTo(x1,y1);
-          ctx.strokeStyle = 'rgba(255,255,255,.5)';
+          ctx.strokeStyle = rgba(255,255,255,.5);
           ctx.lineWidth = 1;
           ctx.stroke();
 
@@ -70,10 +72,10 @@ function Drawer() {
 
     // Points
     if(DRAW_POINTS) {
-      ctx.fillStyle = rgb(255,0,0);
 
       for (var i = 1; i < points.length; i++) {
         array = points[i];
+        ctx.fillStyle = pointColor(t,i);
 
         for (var j = 0; j < array.length; j++) {
 
@@ -116,7 +118,25 @@ function Drawer() {
 }
 
 function rgb(r,g,b) {
+  r = Math.floor(r);
+  g = Math.floor(g);
+  b = Math.floor(b);
   return 'rgb(' + r +','+g+','+b+')';
+}
+
+function rgba(r,g,b,a) {
+  r = Math.floor(r);
+  g = Math.floor(g);
+  b = Math.floor(b);
+
+  return 'rgba(' + r +','+g+','+b+','+a+')';
+}
+
+function pointColor(t,d) {
+  var color1 = [255,0,0],
+      color2 = [255,255,0],
+      color = interpolate(color1,color2, t/ANIMATION_STEPS);
+  return rgb(color[0],color[1],color[2]);
 }
 
 function drawPoint(v,size) {
@@ -143,7 +163,7 @@ function drawControlPoints() {
 }
 
 function drawBackground() {
-  ctx.fillStyle = 'rgba(0,0,0,0.05)';
+  ctx.fillStyle = rgba(0,0,0,1/TRAILS);
   // ctx.fillStyle = 'rgba(0,0,0,1)';
   ctx.fillRect(0,0,WIDTH,HEIGHT);
 }
@@ -157,8 +177,9 @@ function randomPointOnCanvas() {
 
 function interpolate(v1,v2,mu) {
   var v3 = [];
-  v3[0] = v1[0]*(1-mu) + v2[0] * mu;
-  v3[1] = v1[1]*(1-mu) + v2[1] * mu;
+  for (var i = 0; i < v1.length; i++) {
+    v3[i] = v1[i]*(1-mu) + v2[i] * mu;
+  };
   return v3;
 }
 
@@ -196,6 +217,14 @@ function setAnimationSteps(steps) {
   ANIMATION_STEPS = steps;
 }
 
+function setFrequency(n) {
+  FREQUENCY = n;
+}
+
+function setTrails(n) {
+  TRAILS = n;
+}
+
 function controlPointHTML(point) {
   return '<li><a class="control_point" href="#">('+point+')</a> <a class="remove_point" href="#">-</a></li>'
 }
@@ -225,7 +254,7 @@ function advance() {
 function draw() {
   drawer.set(controlPoints);
   drawBackground();
-  drawer.draw(4);
+  drawer.draw(FREQUENCY);
   drawControlPoints();
 }
 
@@ -243,7 +272,7 @@ function mainLoop() {
   setTimeout(mainLoop,1000/FRAMERATE);
 }
 
-$( function() {
+$(function() {
 
   canvas.onmousedown = function(event) {
     dragging = true;
@@ -286,6 +315,14 @@ $( function() {
 
   $('#animation_speed').change(function(event) {
     setAnimationSteps($(this).val());
+  });
+
+  $('#frequency').change(function(event) {
+    setFrequency($(this).val());
+  });
+
+  $('#trails').change(function(event) {
+    setTrails($(this).val());
   });
 
   addControlPoint();

@@ -65,7 +65,7 @@ function Drawer() {
       ctx.lineWidth = 3;
       (new Bezier(controlPoints)).drawPlain(ctx);
 
-      for (var i = controlPoints.length; i > 2; i--) {
+      for (var i = controlPoints.length-1; i > 2; i--) {
         for (var j = 0; j+i <= controlPoints.length; j++) {
           var cps = controlPoints.slice(j,j+i)
               bezier = new Bezier(cps);

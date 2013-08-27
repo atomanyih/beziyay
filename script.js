@@ -6,7 +6,7 @@ var canvas = document.getElementById('canvas'),
     currentPoint = null,
     hoveredPoint = null,
     dragging = false,
-    ANIMATION_STEPS = 100,
+    ANIMATION_STEPS = 180,
     FRAMERATE = 60,
     FREQUENCY = 1,
     RESOLUTION = 10,
@@ -326,7 +326,7 @@ $(function() {
     addControlPoint();
   });
 
-  $('#animation_speed').change(function(event) {
+  $('#animation_steps').change(function(event) {
     setAnimationSteps($(this).val());
   });
 

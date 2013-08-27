@@ -10,8 +10,10 @@ var canvas = document.getElementById('canvas'),
     FRAMERATE = 60,
     FREQUENCY = 1,
     RESOLUTION = 10,
-    TRAILS = 20;
+    TRAILS = 1;
 
+rgb = Color.rgb;
+rgba = Color.rgba;
 
 var drawer = Drawer();
 
@@ -21,7 +23,8 @@ function Drawer() {
 
   var DRAW_POINTS = true,
       DRAW_LINES = true,
-      DRAW_BEZIERS = true;
+      DRAW_BEZIERS = true,
+      DRAW_CRAZY_BEZIERS = false;
 
   function drawAt(t) {
     points = [controlPoints];
@@ -29,7 +32,7 @@ function Drawer() {
     for (var i = 1; i < points[0].length; i++) {
       points[i] = [];
       for (var j = 0; j < points[i-1].length - 1; j++) {
-        points[i][j] = interpolate(points[i-1][j],points[i-1][j+1],t/ANIMATION_STEPS);
+        points[i][j] = interpolate(points[i-1][j], points[i-1][j+1], t/ANIMATION_STEPS);
       }
     }
 
@@ -47,7 +50,7 @@ function Drawer() {
           ctx.beginPath();
           ctx.moveTo(x0,y0);
           ctx.lineTo(x1,y1);
-          ctx.strokeStyle = rgba(255,255,255,.5);
+          ctx.strokeStyle = lineColor(t,i);
           ctx.lineWidth = 1;
           ctx.stroke();
 
@@ -57,16 +60,32 @@ function Drawer() {
 
     // Beziers
     if(DRAW_BEZIERS) {
-      for (var i = 0; i < points.length; i++) {
-        var cps = points[i],
-            bezier = new Bezier(cps);
+      
 
-        ctx.strokeStyle = rgb(255,255,255);
-        if (i === 0)
-          ctx.lineWidth = 3;
-        else 
+      ctx.lineWidth = 3;
+      (new Bezier(controlPoints)).drawPlain(ctx);
+
+      for (var i = controlPoints.length; i > 2; i--) {
+        for (var j = 0; j+i <= controlPoints.length; j++) {
+          var cps = controlPoints.slice(j,j+i)
+              bezier = new Bezier(cps);
+
+          ctx.strokeStyle = bezierColor(t,i);
+          ctx.lineWidth = 1;
+          bezier.drawPlain(ctx);
+
+        }
+      }
+
+      if(DRAW_CRAZY_BEZIERS) {
+        for (var i = 1; i < points.length; i++) {
+          var cps = points[i],
+              bezier = new Bezier(cps);
+
+          ctx.strokeStyle = rgb(255,255,255);
           ctx.lineWidth = 2;
-        bezier.drawPlain(ctx);
+          bezier.drawPlain(ctx);
+        }
       }
     }
 
@@ -113,30 +132,24 @@ function Drawer() {
     },
     toggleBeziers: function() {
       DRAW_BEZIERS = !DRAW_BEZIERS;
+    },
+    toggleCrazyBeziers: function() {
+      DRAW_CRAZY_BEZIERS = !DRAW_CRAZY_BEZIERS;
     }
   }
 }
 
-function rgb(r,g,b) {
-  r = Math.floor(r);
-  g = Math.floor(g);
-  b = Math.floor(b);
-  return 'rgb(' + r +','+g+','+b+')';
-}
-
-function rgba(r,g,b,a) {
-  r = Math.floor(r);
-  g = Math.floor(g);
-  b = Math.floor(b);
-
-  return 'rgba(' + r +','+g+','+b+','+a+')';
-}
-
 function pointColor(t,d) {
-  var color1 = [255,0,0],
-      color2 = [255,255,0],
-      color = interpolate(color1,color2, t/ANIMATION_STEPS);
-  return rgb(color[0],color[1],color[2]);
+  var colors = [[255,0,0],[0,255,0],[0,0,255]];
+  return Color.linear(colors)(d/controlPoints.length);
+}
+
+function lineColor(t,d) {
+  return pointColor(t,d);
+}
+
+function bezierColor(t,d) {
+  return pointColor(t,d);
 }
 
 function drawPoint(v,size) {

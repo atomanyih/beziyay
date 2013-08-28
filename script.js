@@ -3,9 +3,11 @@ var canvas = document.getElementById('canvas'),
     HEIGHT = canvas.height,
     ctx = canvas.getContext('2d'),
     controlPoints = [],
+    velocities = [],
     currentPoint = null,
     hoveredPoint = null,
     dragging = false,
+    DEFAULT_VELOCITY = 1,
     ANIMATION_STEPS = 180,
     FRAMERATE = 60,
     FREQUENCY = 1,
@@ -82,7 +84,7 @@ function Drawer() {
           var cps = points[i],
               bezier = new Bezier(cps);
 
-          ctx.strokeStyle = rgb(255,255,255);
+          ctx.strokeStyle = crazyBezierColor(t,i);
           ctx.lineWidth = 2;
           bezier.drawPlain(ctx);
         }
@@ -140,8 +142,8 @@ function Drawer() {
 }
 
 function pointColor(t,d) {
-  var colors = [[255,0,0],[0,255,0],[0,0,255]];
-  return Color.linear(colors)(d/controlPoints.length);
+  var colorFunction = Color.linear([[255,0,0],[0,255,0],[0,0,255]]);
+  return colorFunction((d/controlPoints.length+t/ANIMATION_STEPS)%1);
 }
 
 function lineColor(t,d) {
@@ -150,6 +152,10 @@ function lineColor(t,d) {
 
 function bezierColor(t,d) {
   return pointColor(t,d);
+}
+
+function crazyBezierColor(t,d) {
+  return rgba(255,255,255,.5);
 }
 
 function drawPoint(v,size) {
@@ -238,6 +244,10 @@ function setTrails(n) {
   TRAILS = n;
 }
 
+function setVelocity(v) {
+  DEFAULT_VELOCITY = v;
+}
+
 function controlPointHTML(point) {
   return '<li><a class="control_point" href="#">('+point+')</a> <a class="remove_point" href="#">-</a></li>'
 }
@@ -278,9 +288,50 @@ function resizeCanvas() {
   HEIGHT = ctx.canvas.height;
 }
 
+function updateVelocties() {
+  for (var i = 0; i < velocities.length; i++) {
+    for (var j = 0; j < velocities[i].length; j++) {
+      if(velocities[i][j] < 0) {
+        velocities[i][j] = -DEFAULT_VELOCITY;
+      } else {
+        velocities[i][j] = DEFAULT_VELOCITY;
+      }
+    }
+  }
+}
+
+function moveControlPoints() {
+  for (var i = 0; i < controlPoints.length; i++) {
+    if((typeof velocities[i]) === "undefined"){
+
+      velocities[i] = [DEFAULT_VELOCITY,DEFAULT_VELOCITY];
+    }
+    if(controlPoints[i][0] <= 0) {
+      controlPoints[i][0] = 0;
+      velocities[i][0] = DEFAULT_VELOCITY;
+    }
+    if(controlPoints[i][0] >= WIDTH) {
+      controlPoints[i][0] = WIDTH;
+      velocities[i][0] = -DEFAULT_VELOCITY;
+    }
+    if(controlPoints[i][1] <= 0) {
+      controlPoints[i][1] = 0;
+      velocities[i][1] = DEFAULT_VELOCITY;
+    }
+    if(controlPoints[i][1] >= HEIGHT) {
+      controlPoints[i][1] = HEIGHT;
+      velocities[i][1] = -DEFAULT_VELOCITY;
+    }
+    controlPoints[i][0] += velocities[i][0];
+    controlPoints[i][1] += velocities[i][1];
+    //console.log(velocities[i]);
+  }
+}
+
 function mainLoop() {
   draw();
   advance();
+  moveControlPoints();
 
   setTimeout(mainLoop,1000/FRAMERATE);
 }
@@ -327,15 +378,20 @@ $(function() {
   });
 
   $('#animation_steps').change(function(event) {
-    setAnimationSteps($(this).val());
+    setAnimationSteps(parseInt($(this).val(),10));
   });
 
   $('#frequency').change(function(event) {
-    setFrequency($(this).val());
+    setFrequency(parseInt($(this).val(),10));
   });
 
   $('#trails').change(function(event) {
-    setTrails($(this).val());
+    setTrails(parseInt($(this).val(),10));
+  });
+
+  $('#velocity').change(function(event) {
+    setVelocity(parseInt($(this).val(),10));
+    updateVelocties();
   });
 
   addControlPoint();

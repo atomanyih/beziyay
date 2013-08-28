@@ -45,10 +45,20 @@ span {
 .controls .current_point {
   width: 100%;
   background-color: yellow;
+  -webkit-transition: background-color .5s;
+  -moz-transition: background-color .5s;
+  -ms-transition: background-color .5s;
+  -o-transition: background-color .5s;
+  transition: background-color .5s;
 }
 
 .controls .current_point .control_point{
   color: black;
+  -webkit-transition: color .5s;
+  -moz-transition: color .5s;
+  -ms-transition: color .5s;
+  -o-transition: color .5s;
+  transition: color .5s;
 }
 
 .controls .current_point .control_point:hover{
